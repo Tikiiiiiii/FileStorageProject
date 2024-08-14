@@ -1,3 +1,0 @@
-/home/tiki/Desktop/code/pro/build/CMakeFiles/server.dir
-/home/tiki/Desktop/code/pro/build/CMakeFiles/edit_cache.dir
-/home/tiki/Desktop/code/pro/build/CMakeFiles/rebuild_cache.dir
