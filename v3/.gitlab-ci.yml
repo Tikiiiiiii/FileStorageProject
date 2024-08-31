@@ -1,0 +1,108 @@
+stages:
+  - check
+  - build
+  - run
+
+# 检查ubuntu镜像
+check-ubuntu-image:
+  stage: check            # 分配阶段
+  tags: 
+    - shellrunner         # 指定执行器
+  script:                 # 检测镜像是否存在，不存在则拉取
+    - |
+      if docker image inspect ubuntu:latest > /dev/null 2>&1; then
+        echo "ubuntu基础镜像已存在,跳过拉取"
+      else
+        echo "ubuntu基础镜像不存在,拉取镜像"
+        docker pull ubuntu:latest
+        echo "拉取完成"
+      fi
+
+# 检查mysql镜像
+check-mysql-image:
+  stage: check
+  tags: 
+    - shellrunner        
+  script:                 
+    - |
+      if docker image inspect mysql:8 > /dev/null 2>&1; then
+        echo "mysql:8基础镜像已存在,跳过拉取"
+      else
+        echo "mysql:8基础镜像不存在,拉取镜像"
+        docker pull mysql:8
+        echo "拉取完成"
+      fi
+
+# 构建mysql完整镜像
+build-mysql:
+  stage: build
+  image:
+    name: mysql:8
+    pull_policy: if-not-present
+  tags:
+    - shellrunner
+  script: 
+    - echo "构建 mysql 镜像"
+    - docker build -t mysql:v1 ./build-mysql 
+  needs:
+    - check-mysql-image
+
+# 构建服务器镜像
+build-server:
+  stage: build
+  image:
+    name: ubuntu:latest
+    pull_policy: if-not-present
+  tags:
+    - shellrunner
+  script:
+    - echo "构建 ubuntu 镜像"
+    - docker build -t server:v2 ./build-server
+  needs:
+    - check-ubuntu-image
+    - build-mysql
+
+# 创建网络
+run-create-net:
+  stage: run
+  tags: 
+    - shellrunner
+  script:
+    - echo "检查网络tiki是否已存在"
+    - |
+      if ! docker network ls --filter name=tiki --format '{{ .Name }}' | grep -w tiki; then
+        echo "网络tiki不存在,创建网络"
+        docker network create --subnet=172.20.0.0/24 tiki
+      else
+        echo "网络tiki已存在,无需创建"
+      fi
+  needs:
+    - build-mysql
+  allow_failure: true
+
+
+# 运行数据库
+run-mysql:
+  stage: run
+  tags: 
+    - shellrunner
+  script:
+    - echo "mysql镜像启动,初始化中"
+    - docker run -d --name mysql --network tiki --ip 172.20.0.3 -p 3306:3306 -e MYSQL_ROOT_PASSWORD='123456' --restart always mysql:v1
+  after_script:
+    - echo "mysql初始化完成"
+  needs:
+    - run-create-net
+
+# 运行服务器：
+run-server:
+  stage: run
+  tags: 
+    - shellrunner
+  script:
+    - echo "server启动"
+    - docker run -d --name server --network tiki --ip 172.20.0.2 -p 8081:8081 --restart always server:v2
+    - echo "启动完成"
+  needs:
+    - run-create-net
+    - build-server

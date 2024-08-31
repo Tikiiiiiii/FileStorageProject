@@ -1,0 +1,63 @@
+登录/注册http报文：
+POST /login或/signup HTTP/1.1
+Content-Type: 数据类型
+{
+    "username":"",
+    "password":""
+}
+
+上传图片http报文
+POST /upload HTTP/1.1
+Content-Type: 数据类型
+
+{
+    "username":"",
+    "imgname":"",
+    "imgdata":""
+}
+
+获取列表
+GET /getlist?username=user HTTP/1.1
+
+获取图片
+GET /getimg?username=user&imgname=img HTTP/1.1
+
+登录成功回复报文：
+HTTP/1.1 200 OK
+
+登录失败/注册失败：
+HTTP/1.1 403 Forbidden
+Content-Type application/json
+{
+    错误
+}
+
+登录错误json：
+HTTP/1.1 400 Bad Request
+
+注册成功/上传图片成功：
+HTTP/1.1 200 OK
+
+上传图片失败：
+HTTP/1.1 500 Internal Server Error
+HTTP/1.1 400 Bad Request
+Content-Type application/json
+
+errormsg;
+
+用户未登录：
+HTTP/1.1 401 Unauthorized
+
+云列表成功：
+HTTP/1.1 200 OK
+
+imglist
+
+获取图片成功：
+HTTP/1.1 200 OK
+Content-Type image/png
+
+data
+
+获取图片失败：
+HTTP/1.1 Bad Request
