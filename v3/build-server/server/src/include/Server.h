@@ -5,8 +5,13 @@
 #include <event2/event.h>
 #include <event2/listener.h>
 #include <event2/bufferevent.h>
+#include <event2/bufferevent_ssl.h>
+
 #include <event2/thread.h>
+#include <event2/util.h>
 #include <event2/buffer.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
 #ifdef _WIN32
 #include <winsock.h>
 #else
@@ -42,9 +47,10 @@ private:
      */
     void init();
 private:
-    struct event_base *m_base=nullptr;              // 事件集合
-    struct sockaddr_in m_sin={0};                   // 服务端socket
-    struct evconnlistener *m_listener=nullptr;      // 监听器指针
+    SSL_CTX* m_ctx = nullptr;                         // ssl上下文参数
+    struct event_base *m_base = nullptr;              // 事件集合
+    struct sockaddr_in m_sin = {0};                   // 服务端socket
+    struct evconnlistener *m_listener = nullptr;      // 监听器指针
     uint16_t m_port = 8081;
 };
 

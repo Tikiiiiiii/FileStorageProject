@@ -45,8 +45,8 @@ private slots:
 private:
     int m_count = 0;            // 记录上传图片张数
     QTcpSocket *m_tcpsock;
-    // QString m_serverIp="192.168.245.128";
-    QString m_serverIp="127.0.0.1";
+    QString m_serverIp="192.168.245.130";
+    // QString m_serverIp="127.0.0.1";
     unsigned short m_port=8081;
     bool m_loginStatus = false; // 是否已经登录
 };

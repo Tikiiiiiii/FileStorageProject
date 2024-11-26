@@ -3,7 +3,7 @@ project(server CXX)
 
 # 定义变量
 set(BUILD_PATH ${PROJECT_SOURCE_DIR}/bin)                       # 二进制文件输出路径
-set(LINK_LIB pthread event jsoncpp mysqlcppconn cryptopp spdlog fmt)       # 链接动态库列表
+set(LINK_LIB pthread event event_openssl ssl crypto jsoncpp mysqlcppconn cryptopp spdlog fmt)       # 链接动态库列表
 
 # 生成可执行文件
 # 搜索源文件
@@ -23,4 +23,4 @@ link_directories(${PROJECT_SOURCE_DIR}/lib/)
 target_link_libraries(server ${LINK_LIB})
 
 # 添加 DEBUG 宏
-#  add_definitions(-D__DEBUG)
+ add_definitions(-D__DEBUG)
